@@ -25,8 +25,8 @@ configuration:
       type: boolean
     mount-ssh-agent:
       type: boolean
-    mount-checkout:
-      type: boolean
+    codebase-checkout-dir:
+      type: string
     network:
       type: string
     runtime:

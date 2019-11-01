@@ -71,14 +71,13 @@ init_default='on'
 mount_agent_default='on'
 mount_ssh_agent=''
 pwd_default="$PWD"
-workdir_default="/workdir"
+codebase_checkout_dir="/checkout"
 
 # Set operating system specific defaults
 if is_windows ; then
   tty_default=''
   init_default=''
   mount_agent_default=''
-  workdir_default="C:\\workdir"
   pwd_default="$(cmd.exe /C "echo %CD%")"
 elif is_macos ; then
   mount_agent_default=''
@@ -107,16 +106,17 @@ if plugin_read_list_into_result BUILDKITE_PLUGIN_DOCKER_TMPFS ; then
   done
 fi
 
-workdir=''
-
-if [[ -n "${BUILDKITE_PLUGIN_DOCKER_WORKDIR:-}" ]] || [[ "${BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT:-on}" =~ ^(true|on|1)$ ]] ; then
-  workdir="${BUILDKITE_PLUGIN_DOCKER_WORKDIR:-$workdir_default}"
+if [[ -n "${BUILDKITE_PLUGIN_DOCKER_CODEBASE_CHECKOUT_DIR:-}" ]] ; then
+  codebase_checkout_dir="${BUILDKITE_PLUGIN_DOCKER_CODEBASE_CHECKOUT_DIR}"
 fi
 
-# By default, mount $PWD onto $WORKDIR
-if [[ "${BUILDKITE_PLUGIN_DOCKER_MOUNT_CHECKOUT:-on}" =~ ^(true|on|1)$ ]] ; then
-  args+=( "--volume" "${pwd_default}:${workdir}" )
+workdir="${codebase_checkout_dir}"
+
+if [[ -n "${BUILDKITE_PLUGIN_DOCKER_WORKDIR:-}" ]] ; then
+  workdir="${workdir}${BUILDKITE_PLUGIN_DOCKER_WORKDIR}"
 fi
+
+args+=( "--volume" "${pwd_default}:${codebase_checkout_dir}" )
 
 # Parse volumes (and deprecated mounts) and add them to the docker args
 if plugin_read_list_into_result BUILDKITE_PLUGIN_DOCKER_VOLUMES BUILDKITE_PLUGIN_DOCKER_MOUNTS ; then
