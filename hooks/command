@@ -173,9 +173,8 @@ fi
 # Mount ssh-agent socket and known_hosts
 if [[ "${BUILDKITE_PLUGIN_DOCKER_MOUNT_SSH_AGENT:-$mount_ssh_agent}" =~ ^(true|on|1)$ ]] ; then
   args+=(
-    "--env" "SSH_AUTH_SOCK=/ssh-agent"
-    "--volume" "${SSH_AUTH_SOCK}:/ssh-agent"
-    "--volume" "${HOME}/.ssh/known_hosts:/root/.ssh/known_hosts"
+    "--mount" "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock"
+    "--env" "SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock"
   )
 fi
 
